@@ -181,16 +181,16 @@ $result = $graphServiceClient->drives()
 
                 if ($personal_drives && $personal_drives->getValue()) {
                     $useDriveID = $personal_drives->getValue()[0]->getId();
+                    $fileName = $matches['file_id'] . ".docx";
 
-                    $driveItem = new Models\DriveItem();
-                    $driveItem->setName($matches['file_id'] . ".docx");
-                    $driveItem->setFile(new Models\File());
-
+                    // Datei direkt hochladen (für Dateien < 4MB)
                     $result = $graphServiceClient->drives()
                         ->byDriveId($useDriveID)
-                        ->root()
-                        ->children()
-                        ->post($driveItem)
+                        ->items()
+                        ->byDriveItemId('root')
+                        ->itemWithPath($fileName)
+                        ->content()
+                        ->put($binaryData)
                         ->wait();
 
                     App::result('result', $result);
