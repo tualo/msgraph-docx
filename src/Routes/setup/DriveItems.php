@@ -114,13 +114,14 @@ $result = $graphServiceClient->drives()
                     App::result('drives', $list);
 
 
-                    $personal_drives = $graphServiceClient->me()->drives()->get()->wait();
+                    $personal_list = [];
+                    $personal_drives = $graphServiceClient->drives()->get()->wait();
 
 
                     if ($personal_drives && $personal_drives->getValue()) {
                         foreach ($personal_drives->getValue() as $drive) {
 
-                            $personal_drives[] = [
+                            $personal_list[] = [
                                 'id' => $drive->getId(),
                                 'name' => $drive->getName(),
                                 'type' => $drive->getDriveType(),
@@ -129,7 +130,7 @@ $result = $graphServiceClient->drives()
                             ];
                         }
                     }
-                    App::result('personal_drives', $personal_drives);
+                    App::result('personal_drives', $personal_list);
 
                     $teamDrives = [];
                     $teams = $graphServiceClient->me()->joinedTeams()->get()->wait();
