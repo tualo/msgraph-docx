@@ -183,14 +183,16 @@ $result = $graphServiceClient->drives()
                     $useDriveID = $personal_drives->getValue()[0]->getId();
                     $fileName = $matches['file_id'] . ".docx";
 
+                    // Stream erstellen für den Upload
+                    $stream = \GuzzleHttp\Psr7\Utils::streamFor($binaryData);
+
                     // Datei direkt hochladen (für Dateien < 4MB)
                     $result = $graphServiceClient->drives()
                         ->byDriveId($useDriveID)
                         ->items()
-                        ->byDriveItemId('root')
-                        ->itemWithPath($fileName)
+                        ->byDriveItemId('root:/' . $fileName . ':')
                         ->content()
-                        ->put($binaryData)
+                        ->put($stream)
                         ->wait();
 
                     App::result('result', $result);
