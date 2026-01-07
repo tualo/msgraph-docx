@@ -23,13 +23,82 @@ class DriveItems extends \Tualo\Office\Basic\RouteWrapper
 {
     public static function register()
     {
+
+        /**
+         * 
+         * 
+         * <?php
+use Microsoft\Graph\Generated\Models;
+
+// Neuen Ordner erstellen
+$driveItem = new Models\DriveItem();
+$driveItem->setName("Neuer Ordner");
+$driveItem->setFolder(new Models\Folder());
+
+// Im Root eines bestimmten Drives
+$result = $graphServiceClient->drives()
+    ->byDriveId($driveId)
+    ->root()
+    ->children()
+    ->post($driveItem)
+    ->wait();
+
+
+<?php
+$driveItem = new Models\DriveItem();
+$driveItem->setName("neue-datei.txt");
+$driveItem->setFile(new Models\File());
+
+$result = $graphServiceClient->drives()
+    ->byDriveId($driveId)
+    ->root()
+    ->children()
+    ->post($driveItem)
+    ->wait();
+
+
+<?php
+$result = $graphServiceClient->drives()
+    ->byDriveId($driveId)
+    ->items()
+    ->byDriveItemId($parentFolderId)
+    ->children()
+    ->post($driveItem)
+    ->wait();
+
+    <?php
+// Verfügbare Drives abrufen
+$drives = $graphServiceClient->drives()->get()->wait();
+$driveId = $drives->getValue()[0]->getId(); // Existierende DriveID verwenden
+
+// Oder spezifisches Drive eines Benutzers
+$userDrive = $graphServiceClient->users()
+    ->byUserId($userId)
+    ->drive()
+    ->get()
+    ->wait();
+$driveId = $userDrive->getId();
+
+// Dann DriveItems darin erstellen
+$driveItem = new Models\DriveItem();
+$driveItem->setName("Mein Ordner");
+$driveItem->setFolder(new Models\Folder());
+
+$result = $graphServiceClient->drives()
+    ->byDriveId($driveId)
+    ->root()
+    ->children()
+    ->post($driveItem)
+    ->wait();
+         */
         BasicRoute::add('/msgraph-docx/drives', function ($matches) {
             try {
                 $graphServiceClient = API::GraphClient();
                 $list = [];
                 try {
-
                     $drives = $graphServiceClient->drives()->get()->wait();
+
+
                     if ($drives && $drives->getValue()) {
                         foreach ($drives->getValue() as $drive) {
 
@@ -43,6 +112,25 @@ class DriveItems extends \Tualo\Office\Basic\RouteWrapper
                         }
                     }
                     App::result('drives', $list);
+
+
+                    $teamDrives = [];
+                    $teams = $graphServiceClient->me()->joinedTeams()->get()->wait();
+
+                    foreach ($teams->getValue() as $team) {
+                        // Das primäre Drive eines Teams
+                        $drive = $graphServiceClient->groups()
+                            ->byGroupId($team->getId())
+                            ->drive()
+                            ->get()
+                            ->wait();
+                        $teamDrives[] = [
+                            'team_name' => $team->getDisplayName(),
+                            'drive_id' => $drive->getId(),
+                            'drive_weburl' => $drive->getWebUrl()
+                        ];
+                    }
+                    App::result('team_drives', $teamDrives);
                 } catch (ApiException $ex) {
                     App::result('drives', []);
                     App::result('drives_error', [
