@@ -115,7 +115,7 @@ $result = $graphServiceClient->drives()
 
 
                     $personal_list = [];
-                    $personal_drives = $graphServiceClient->drives()->get()->wait();
+                    $personal_drives = $graphServiceClient->me()->drives()->get()->wait();
 
 
                     if ($personal_drives && $personal_drives->getValue()) {
@@ -160,6 +160,48 @@ $result = $graphServiceClient->drives()
                 if (count($list) == 0) throw new \Exception('no drives found');
 
                 App::result('success', true);
+            } catch (\Exception $e) {
+                App::result('error', $e->getMessage());
+            }
+            App::contenttype('application/json');
+        }, ['get'], true);
+
+
+        BasicRoute::add('/msgraph-docx/open/(?P<file_id>.+)', function ($matches) {
+            try {
+                $graphServiceClient = API::GraphClient();
+                $db = App::get('session')->getDB();
+                $files = $db->direct("select * from doc_binary where document_link = {id}", [
+                    'id' => $matches['file_id']
+                ]);
+                $binaryData = $files[0]['doc_data'];
+
+                $personal_drives = $graphServiceClient->me()->drives()->get()->wait();
+
+
+                if ($personal_drives && $personal_drives->getValue()) {
+                    $useDriveID = $personal_drives->getValue()[0]->getId();
+
+                    $driveItem = new Models\DriveItem();
+                    $driveItem->setName($matches['file_id'] . ".docx");
+                    $driveItem->setFile(new Models\File());
+
+                    $result = $graphServiceClient->drives()
+                        ->byDriveId($useDriveID)
+                        ->root()
+                        ->children()
+                        ->post($driveItem)
+                        ->wait();
+
+                    App::result('result', $result);
+                } else {
+                    throw new \Exception('no personal drive found');
+                }
+            } catch (ApiException $ex) {
+                App::result('error', [
+                    'code' => $ex->getResponseStatusCode(),
+                    'message' => $ex->getError()->getMessage()
+                ]);
             } catch (\Exception $e) {
                 App::result('error', $e->getMessage());
             }
