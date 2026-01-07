@@ -196,6 +196,24 @@ $result = $graphServiceClient->drives()
                         ->wait();
 
                     App::result('result', $result);
+
+                    $itemId = $result->getId();
+                    $webUrl = $result->getWebUrl();  // URL zum Öffnen im Browser
+                    $name = $result->getName();
+                    $size = $result->getSize();
+                    $createdDateTime = $result->getCreatedDateTime();
+                    $lastModifiedDateTime = $result->getLastModifiedDateTime();
+
+                    App::result('file', [
+                        'id' => $itemId,
+                        'webUrl' => $webUrl,
+                        'name' => $name,
+                        'size' => $size,
+                        'createdDateTime' => $createdDateTime,
+                        'lastModifiedDateTime' => $lastModifiedDateTime
+                    ]);
+
+                    App::result('success', true);
                 } else {
                     throw new \Exception('no personal drive found');
                 }
