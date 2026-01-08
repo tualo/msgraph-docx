@@ -48,8 +48,8 @@ class FileRoute extends \Tualo\Office\Basic\RouteWrapper
     public static function register()
     {
 
-        BasicRoute::add('/msgraph/webhook', function ($matches) {
-
+        BasicRoute::add('/msgraph-docx/webhook', function ($matches) {
+            self::store();
             if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['validationToken'])) {
                 // Validierung von Microsoft Graph
                 echo $_GET['validationToken'];
@@ -65,7 +65,8 @@ class FileRoute extends \Tualo\Office\Basic\RouteWrapper
             }
         }, ['get'], true);
 
-        BasicRoute::add('/msgraph/webhook', function ($matches) {
+        BasicRoute::add('/msgraph-docx/webhook', function ($matches) {
+            self::store();
             if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['validationToken'])) {
                 // Validierung von Microsoft Graph
                 echo $_GET['validationToken'];
@@ -80,7 +81,8 @@ class FileRoute extends \Tualo\Office\Basic\RouteWrapper
             }
         }, ['put'], true);
 
-        BasicRoute::add('/msgraph/webhook', function ($matches) {
+        BasicRoute::add('/msgraph-docx/webhook', function ($matches) {
+            self::store();
             if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['validationToken'])) {
                 // Validierung von Microsoft Graph
                 echo $_GET['validationToken'];
