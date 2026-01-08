@@ -1,6 +1,6 @@
 <?php
 
-namespace Tualo\Office\MSGraph\Routes\Webhook;
+namespace Tualo\Office\MSGraphDOCX\Routes\Webhook;
 
 use Tualo\Office\Basic\TualoApplication as App;
 use Tualo\Office\Basic\Route as BasicRoute;
