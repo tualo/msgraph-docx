@@ -49,6 +49,43 @@ class File extends \Tualo\Office\Basic\RouteWrapper
     {
 
         BasicRoute::add('/msgraph-docx/webhook', function ($matches) {
+            try {
+                // 1. Validierungsanfrage von Microsoft (beim Erstellen der Subscription)
+                if (isset($_GET['validationToken'])) {
+                    header('Content-Type: text/plain');
+                    echo $_GET['validationToken'];
+                    exit;
+                }
+
+                // 2. Normale Webhook-Benachrichtigung
+                $input = file_get_contents('php://input');
+                $data = json_decode($input, true);
+
+                // Client State validieren
+                if (isset($data['value'][0]['clientState'])) {
+                    if ($data['value'][0]['clientState'] !== 'secretClientValue') {
+                        http_response_code(403);
+                        exit;
+                    }
+                }
+
+                // Benachrichtigungen verarbeiten
+                foreach ($data['value'] as $notification) {
+                    $resource = $notification['resource'];
+                    $changeType = $notification['changeType'];
+                    self::store();
+                    // Hier die Änderungen verarbeiten
+                    // z.B. Datei herunterladen und in DB speichern
+                }
+
+                http_response_code(202); // Accepted
+            } catch (\Exception $e) {
+                error_log($e->getMessage());
+                http_response_code(500);
+            }
+        }, ['post', 'get'], false);
+        /*
+        BasicRoute::add('/msgraph-docx/webhook', function ($matches) {
             self::store();
             if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['validationToken'])) {
                 // Validierung von Microsoft Graph
@@ -96,5 +133,6 @@ class File extends \Tualo\Office\Basic\RouteWrapper
                 App::result('error', $e->getMessage());
             }
         }, ['post'], true);
+        */
     }
 }
