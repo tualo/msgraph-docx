@@ -201,6 +201,7 @@ $result = $graphServiceClient->drives()
                     $webUrl = $result->getWebUrl();  // URL zum Öffnen im Browser
                     $name = $result->getName();
                     $size = $result->getSize();
+                    $eTag = $result->getETag();
                     $createdDateTime = $result->getCreatedDateTime();
                     $lastModifiedDateTime = $result->getLastModifiedDateTime();
 
