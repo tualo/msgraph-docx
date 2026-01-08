@@ -28,7 +28,7 @@ class Open extends \Tualo\Office\Basic\RouteWrapper
                 $msgraphFile = new MSGraphFile();
                 $uploadResult = $msgraphFile->upload($drives[0]['id'], $matches['file_id'] . '.docx', $binaryData);
                 App::result('uploadResult', $uploadResult);
-                $msgraphFile->subscripe($uploadResult['id']);
+                $msgraphFile->subscripe($drives[0]['id'], $uploadResult['id']);
                 if (isset($uploadResult['webUrl'])) {
                     header('Location: ' . $uploadResult['webUrl']);
                     exit;;

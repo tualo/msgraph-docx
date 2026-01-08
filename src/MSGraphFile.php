@@ -81,7 +81,7 @@ class MSGraphFile
         return $resultValue;
     }
 
-    public function subscripe(string $resourceId): array
+    public function subscripe(string $driveId, string $itemId = 'root'): array
     {
         $resultValue = [];
         try {
@@ -102,7 +102,7 @@ class MSGraphFile
             $expirationDateTime = new \DateTime();
             $expirationDateTime->modify('+4230 minutes'); // Maximale Laufzeit für Web
             $subscription = new Models\Subscription();
-            $subscription->setChangeType('updated,deleted');
+            $subscription->setChangeType('updated');
             $urlParts = [
                 $baseWebHookURL,
                 '~',
@@ -111,7 +111,14 @@ class MSGraphFile
                 'webhook'
             ];
             $subscription->setNotificationUrl(implode('/', $urlParts));
-            $subscription->setResource($resourceId);
+
+            // Korrektes Format für DriveItem-Subscription
+            $resourcePath = "/drives/{$driveId}/root";
+            if ($itemId !== 'root') {
+                $resourcePath = "/drives/{$driveId}/items/{$itemId}";
+            }
+            $subscription->setResource($resourcePath);
+
             $subscription->setExpirationDateTime($expirationDateTime);
             $subscription->setClientState('secretClientValue');
             $subscription->setLatestSupportedTlsVersion('v1_2');
@@ -130,6 +137,7 @@ class MSGraphFile
         } catch (ODataError $e) {
             $code = $e->getCode();
             $message = $e->getMessage();
+            $message = $e->getError()?->getMessage();
             throw new \Exception("Error creating subscription: [$code] $message", $code);
         } catch (ApiException $e) {
             $code = $e->getResponseStatusCode();
