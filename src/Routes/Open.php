@@ -28,7 +28,11 @@ class Open extends \Tualo\Office\Basic\RouteWrapper
                 $msgraphFile = new MSGraphFile();
                 $uploadResult = $msgraphFile->upload($drives[0]['id'], $matches['file_id'] . '.docx', $binaryData);
                 App::result('uploadResult', $uploadResult);
-                $msgraphFile->subscripe($drives[0]['id'], $uploadResult['id']);
+
+                // Subscription für das gesamte Drive-Root (nicht für einzelne Dateien möglich)
+                $subscriptionResult = $msgraphFile->subscripe($drives[0]['id']);
+                App::result('subscription', $subscriptionResult);
+
                 if (isset($uploadResult['webUrl'])) {
                     header('Location: ' . $uploadResult['webUrl']);
                     exit;;
